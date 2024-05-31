@@ -1,6 +1,8 @@
 ﻿using CadastroAPI.Models;
+using CadastroAPI.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SendGrid.Helpers.Mail;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -10,56 +12,39 @@ namespace CadastroAPI.Controllers
     [Route("api/[controller]")]
     public class NotaFiscalController : ControllerBase
     {
-        private readonly CadastroContext _context;
+        private readonly INotaFiscalRepository _repository;
 
-        public NotaFiscalController(CadastroContext context)
+        public NotaFiscalController(INotaFiscalRepository repository)
         {
-            _context = context;
+            _repository = repository;
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateNotaFiscal([FromBody] NotaFiscal notaFiscal)
+        public async Task<IActionResult> CreateNotaFiscal([FromForm] NotaFiscal notaFiscal)//, [FromForm] IFormFile imagem
         {
-            if (notaFiscal == null)
+            if (notaFiscal == null)// || imagem == null || imagem.Length == 0
             {
                 return BadRequest();
             }
 
-            _context.NotasFiscais.Add(notaFiscal);
-            await _context.SaveChangesAsync();
+            try
+            {
+                //var novaImagem = new Imagem(notaFiscal.NotaCupom, imagem);
 
-            return CreatedAtAction(nameof(GetNotaFiscal), new { id = notaFiscal.NotaCupom }, notaFiscal);
+               // await _repository.AddNotaFiscalAndImagemAsync(notaFiscal, novaImagem);
+
+                return CreatedAtAction(nameof(GetNotaFiscal), new { id = notaFiscal.NotaCupom }, notaFiscal);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
-        [HttpPost]
-        public async Task<IActionResult> CreateNotaFiscal([FromBody] NotaFiscal notaFiscal, IFormFile imagem)
+        [HttpGet("{usuarioId}/{notaCupom}")]
+        public async Task<ActionResult<NotaFiscal>> GetNotaFiscal(string usuarioId, string notaCupom)
         {
-            if (notaFiscal == null)
-            {
-                return BadRequest();
-            }
-
-            if (imagem != null && imagem.Length > 0)
-            {
-                using (var stream = new MemoryStream())
-                {
-                    await imagem.CopyToAsync(stream);
-                    notaFiscal.Imagem = stream;
-                }
-            }
-
-            _context.NotasFiscais.Add(notaFiscal);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetNotaFiscal), new { id = notaFiscal.NotaCupom }, notaFiscal);
-        }
-
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetNotaFiscal(string id)
-        {
-            var notaFiscal = await _context.NotasFiscais
-                .Include(n => n.Produtos)
-                .FirstOrDefaultAsync(n => n.NotaCupom == id);
+            var notaFiscal = await _repository.GetNotaFiscalAsync(usuarioId, notaCupom);
 
             if (notaFiscal == null)
             {
@@ -69,14 +54,18 @@ namespace CadastroAPI.Controllers
             return Ok(notaFiscal);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAllNotasFiscais()
+        [HttpGet("{usuarioId}")]
+        public async Task<ActionResult<IEnumerable<NotaFiscal>>> GetNotasFiscais(string usuarioId)
         {
-            var notasFiscais = await _context.NotasFiscais
-                .Include(n => n.Produtos)
-                .ToListAsync();
+            var notasFiscais = await _repository.GetNotasFiscaisByUsuarioIdAsync(usuarioId);
+
+            if (notasFiscais == null || !notasFiscais.Any())
+            {
+                return NotFound();
+            }
 
             return Ok(notasFiscais);
         }
     }
+
 }

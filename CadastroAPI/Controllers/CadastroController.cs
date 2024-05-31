@@ -1,4 +1,7 @@
-﻿using CadastroAPI.Models;
+﻿using CadastroAPI.Context;
+using CadastroAPI.Models;
+using CadastroAPI.Repositories;
+using CadastroAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -15,22 +18,21 @@ namespace CadastroAPI
         [Route("api/[controller]")]
         public class CadastroController : ControllerBase
         {
-            private readonly CadastroContext _context;
-
-            public CadastroController(CadastroContext context)
+            private readonly IUserRepository _userRepository;
+            
+            public CadastroController(IUserRepository userRepository)
             {
-                _context = context;
+                _userRepository = userRepository;
             }
-
+            
             [HttpPost("register")]
             public async Task<IActionResult> Register([FromBody] User user)
             {
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
-                user.Senha = BCrypt.Net.BCrypt.HashPassword(user.Senha);
-                _context.Users.Add(user);
-                 await _context.SaveChangesAsync();
+                //user
+                await _userRepository.AddAsync(user);
 
                 return Ok();
             }
@@ -38,18 +40,18 @@ namespace CadastroAPI
             [HttpPost("login")]
             public async Task<IActionResult> Login([FromBody] LoginRequest loginRequest)
             {
-                var user = await _context.Users.SingleOrDefaultAsync(u => u.Email == loginRequest.Email);
-                if (user == null || !BCrypt.Net.BCrypt.Verify(loginRequest.Senha, user.Senha))
+                var user = await _userRepository.GetByIdAsync(loginRequest.Cpf);
+                if (user == null || !user.ValidarSenha(loginRequest.Senha))
                     return Unauthorized();
 
                 var token = GenerateJwtToken(user);
                 return Ok(new { Token = token });
-            }
+            }            
 
             [HttpPost("recover-password")]
             public async Task<IActionResult> RecoverPassword([FromBody] RecoverPasswordRequest request)
             {
-                var user = await _context.Users.SingleOrDefaultAsync(u => u.Email == request.Email);
+                var user = await _userRepository.GetByEmailAsync(request.Email);
                 if (user == null)
                     return NotFound();
 
@@ -61,12 +63,12 @@ namespace CadastroAPI
             [HttpPost("reset-password")]
             public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
             {
-                var user = await _context.Users.SingleOrDefaultAsync(u => u.Email == request.Email);
+                var user = await _userRepository.GetByEmailAsync(request.Email);
                 if (user == null)
                     return NotFound();
 
-                user.Senha = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
-                await _context.SaveChangesAsync();
+               // user.
+               // await _context.SaveChangesAsync();
 
                 return Ok();
             }
@@ -91,7 +93,7 @@ namespace CadastroAPI
 
         public class LoginRequest
         {
-            public string Email { get; set; }
+            public string Cpf { get; set; }
             public string Senha { get; set; }
         }
 

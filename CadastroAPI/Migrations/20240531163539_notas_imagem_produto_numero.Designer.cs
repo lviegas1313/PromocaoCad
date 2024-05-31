@@ -4,6 +4,7 @@ using CadastroAPI.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CadastroAPI.Migrations
 {
     [DbContext(typeof(CadastroContext))]
-    partial class CadastroContextModelSnapshot : ModelSnapshot
+    [Migration("20240531163539_notas_imagem_produto_numero")]
+    partial class notas_imagem_produto_numero
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

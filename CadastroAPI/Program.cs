@@ -1,27 +1,37 @@
-using CadastroAPI.Models;
+using CadastroAPI.Context;
+using CadastroAPI.Filters;
+using CadastroAPI.Repositories;
 using CadastroAPI.Validators;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-//using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+var services = builder.Services;
 
 // Add services to the container.
-builder.Services.AddControllers();
+services.AddControllers();
 
 // Add DbContext with SQL Server
-builder.Services.AddDbContext<CadastroContext>(options =>
+services.AddDbContext<CadastroContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+//Add repositories
+services.AddScoped<IUserRepository, UserRepository>();
+services.AddScoped<INotaFiscalRepository, NotaFiscalRepository>();
+
+
 // Add FluentValidation
-builder.Services.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<UserValidator>());
+services.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<UserValidator>());
+services.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<NotaFiscalValidator>());
+services.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<ProdutoValidator>());
 
 // Add Authentication
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -43,10 +53,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 // Add Authorization
-builder.Services.AddAuthorization();
+services.AddAuthorization();
+
 
 // Add Swagger
-builder.Services.AddSwaggerGen(c =>
+services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
@@ -59,6 +70,7 @@ builder.Services.AddSwaggerGen(c =>
             Email = "seu@email.com"
         }
     });
+    c.OperationFilter<SwaggerFileOperationFilter>();
 });
 
 var app = builder.Build();

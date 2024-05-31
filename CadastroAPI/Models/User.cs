@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CadastroAPI.Services;
+using System.ComponentModel.DataAnnotations;
 
 namespace CadastroAPI.Models
 {
@@ -47,8 +48,36 @@ namespace CadastroAPI.Models
         [MaxLength(11)]
         public string TelefoneCelular { get; set; }
 
-        [Required]
-        [MaxLength(250)]
-        public string Senha { get; set; }
+
+        public string? Senha { get; set; }
+
+        private string _senhaDescriptografada;
+        //public string SenhaDescriptografada
+        //{
+        //    get => _senhaDescriptografada;
+        //    set
+        //    {
+        //        _senhaDescriptografada = value;
+        //        SenhaCriptografada = CriptografarSenha(value);
+        //    }
+        //}
+        //     public string SenhaCriptografada { get; private set; }
+        private readonly IPasswordHashService _passwordHashService;
+
+        public User() { }
+        public User(IPasswordHashService passwordHashService)
+        {
+            _passwordHashService = passwordHashService;
+        }
+        public void CriptografarSenha(IPasswordHashService passwordHashService)
+        {
+            Senha = passwordHashService.HashPassword(_senhaDescriptografada);
+        }
+
+        public bool ValidarSenha(string senhaDigitada)
+        {
+            return _passwordHashService.VerifyPassword(senhaDigitada, _senhaDescriptografada);
+        }
+
     }
 }

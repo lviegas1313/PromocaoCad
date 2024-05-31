@@ -5,6 +5,7 @@ namespace CadastroAPI.Models
 {
     public class NotaFiscal
     {
+        const string prodCoringa = "Fermento";
 
         [Key, Column(Order = 0)]
         [MaxLength(11)]
@@ -32,6 +33,29 @@ namespace CadastroAPI.Models
             DataCompra = dataCompra;
         }
         public NotaFiscal() { }
+
+        private int QuantidaderNumerosSorte()
+        {
+            if (Produtos == null || Produtos.Count < 2)
+                return 0; // Não há produtos suficientes para gerar números da sorte
+
+            // Contagem de produtos participantes e de fermento
+            int produtosParticipantes = Produtos.Count;
+            int quantidadeFermento = Produtos.Count(p => p.Nome == prodCoringa);
+
+            // Cálculo do número de sorte
+            int numerosSorte = produtosParticipantes / 2; // 1 número de sorte a cada 2 produtos participantes
+
+            // Regra do fermento
+            if (produtosParticipantes % 2 != 0 && quantidadeFermento > 0)
+            {
+                numerosSorte++; // Adiciona mais 1 número de sorte se a quantidade de produtos for ímpar e houver fermento
+            }
+            return numerosSorte;
+
+
+        }
+
     }
     public class Produto
     {
@@ -98,6 +122,6 @@ namespace CadastroAPI.Models
         [Key]
         public string Numero { get; set; }
         public DateOnly DataSorteio { get; set; }
-        public DateTime DataCadastro { get; set; }        
+        public DateTime DataCadastro { get; set; }
     }
 }

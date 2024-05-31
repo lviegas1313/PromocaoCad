@@ -1,10 +1,7 @@
 ﻿using CadastroAPI.Models;
 using CadastroAPI.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using SendGrid.Helpers.Mail;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace CadastroAPI.Controllers
 {

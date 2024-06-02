@@ -32,9 +32,9 @@ namespace CadastroAPI.Controllers
             //{
             //await _repository.AddNotaFiscalAsync(notaFiscal);
             var nun = notaFiscal.CalcularNumerosSorte();
-                await _repositoryNumerosSorte.GerarNumerosSorteAsync(notaFiscal.UsuarioId, notaFiscal.NotaCupom, nun);
-                var numeros = _repositoryNumerosSorte.GetNumerosPorNotaFiscal(notaFiscal.NotaCupom).Result;
-                return Ok(notaFiscal.ToDto(numeros));
+            await _repositoryNumerosSorte.GerarNumerosSorteAsync(notaFiscal.UsuarioId, notaFiscal.NotaCupom, nun);
+            var numeros = _repositoryNumerosSorte.GetNumerosPorNotaFiscal(notaFiscal.NotaCupom).Result;
+            return Ok(notaFiscal.ToDto(numeros));
             //}
             //catch (Exception)
             //{

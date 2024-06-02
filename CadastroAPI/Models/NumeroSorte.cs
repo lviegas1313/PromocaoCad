@@ -1,10 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace CadastroAPI.Models
+﻿namespace CadastroAPI.Models
 {
     using System;
     using System.ComponentModel.DataAnnotations;
-    using System.Text.Json.Serialization;
 
     public class NumeroSorte
     {
@@ -43,7 +40,7 @@ namespace CadastroAPI.Models
     }
 
     public class NumeroSorteDTO
-    {        
+    {
         public string Numero { get; set; }
 
         public DateOnly DataSorteio { get; set; }

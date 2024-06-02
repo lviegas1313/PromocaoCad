@@ -23,7 +23,7 @@ namespace CadastroAPI.Models
         public DateTime DataCompra { get; set; }
 
         [Required]
-        public List<Produto> Produtos { get; set; } = new List<Produto>();      
+        public List<Produto> Produtos { get; set; } = new List<Produto>();
 
         public NotaFiscal() { }
 
@@ -47,7 +47,7 @@ namespace CadastroAPI.Models
             return numerosSorte;
         }
 
-        public static NotaFiscal FromDto(NotaFiscalDTO dto, string usuarioId= "35288343748")//remover cpf apenas teste 
+        public static NotaFiscal FromDto(NotaFiscalDTO dto, string usuarioId = "35288343748")//remover cpf apenas teste 
         {
             return new NotaFiscal
             {
@@ -70,7 +70,7 @@ namespace CadastroAPI.Models
             };
         }
         public NotaFiscalDTO ToDto(List<NumeroSorteDTO> numeros)
-        {          
+        {
 
             return new NotaFiscalDTO
             {

@@ -5,13 +5,13 @@ using CadastroAPI.Validators;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
+var config = new ConfigurationBuilder();
 
 // Add services to the container.
 services.AddControllers();
@@ -24,6 +24,7 @@ services.AddDbContext<CadastroContext>(options =>
 services.AddScoped<IUserRepository, UserRepository>();
 services.AddScoped<INotaFiscalRepository, NotaFiscalRepository>();
 services.AddScoped<INumerosSorteRepository, NumerosSorteRepository>();
+services.AddScoped<IDatabaseRepository, DatabaseRepository>();
 
 
 // Add FluentValidation
@@ -94,5 +95,29 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Aplicar migrações e verificar/criar a procedure ao iniciar a aplicação de forma assíncrona
+using (var scope = app.Services.CreateScope())
+{
+    var dbRepository = scope.ServiceProvider.GetRequiredService<IDatabaseRepository>();
+
+
+    config.SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json");
+
+    var configuration = config.Build();
+    var tableNames = configuration.GetSection("TruncateTablesOrder").Get<List<string>>();
+
+    await dbRepository.TruncateTablesAsync(tableNames);
+
+
+    // Aplicar migrações
+    await dbRepository.ApplyMigrationsAsync();
+
+    // Verificar e criar/alterar a procedure se necessário a partir do arquivo SQL
+    var sqlFilePath = Path.Combine(AppContext.BaseDirectory, "YourProcedureName.sql");
+    await dbRepository.EnsureProcedureExistsFromFileAsync(sqlFilePath);
+}
+
 
 app.Run();

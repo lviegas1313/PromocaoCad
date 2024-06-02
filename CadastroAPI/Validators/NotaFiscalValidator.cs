@@ -18,7 +18,7 @@ namespace CadastroAPI.Validators
     }
 
     public class NotaFiscalValidator : AbstractValidator<NotaFiscal>
-    {       
+    {
         public NotaFiscalValidator()
         {
             RuleFor(n => n.UsuarioId)

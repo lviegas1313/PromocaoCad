@@ -1,6 +1,6 @@
-﻿using CadastroAPI.Models;
+﻿using CadastroAPI.Context;
+using CadastroAPI.Models;
 using Microsoft.Data.SqlClient;
-using CadastroAPI.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace CadastroAPI.Repositories
@@ -26,14 +26,17 @@ namespace CadastroAPI.Repositories
 
             return numerosSorte;
         }
-        public async Task<IEnumerable<NumeroSorte>> GerarNumerosSorteAsync(string idUsuario, string idNotaFiscal, int quantidade)
+        public async Task<IEnumerable<NumeroSorte>> GerarNumerosSorteAsync(string idUsuario, string idNotaFiscal, int quantidade,DateTime? dataSorteio = null)
         {
+            DateTime dataSorteioFixa = dataSorteio ?? new DateTime(2000, 1, 1);
             var idUsuarioParam = new SqlParameter("@IdUsuario", idUsuario);
             var idNotaFiscalParam = new SqlParameter("@IdNotaFiscal", idNotaFiscal);
             var quantidadeParam = new SqlParameter("@Quantidade", quantidade);
+            var dataSorteioParam = new SqlParameter("@DataSorteio", dataSorteioFixa);
+
 
             // Utilize o método FromSqlRawAsync para operações assíncronas
-            var numerosSorte = await _context.NumerosSorte.FromSqlRaw("EXEC GerarNumerosAleatorios @IdUsuario, @IdNotaFiscal, @Quantidade", idUsuarioParam, idNotaFiscalParam, quantidadeParam).ToListAsync();
+            var numerosSorte = await _context.NumerosSorte.FromSqlRaw("EXEC GerarNumerosAleatorios @IdUsuario, @IdNotaFiscal, @Quantidade", idUsuarioParam, idNotaFiscalParam, quantidadeParam, dataSorteioParam).ToListAsync();
 
             return numerosSorte;
         }

@@ -1,9 +1,6 @@
-﻿using CadastroAPI.Context;
-using CadastroAPI.Models;
+﻿using CadastroAPI.Models;
 using CadastroAPI.Repositories;
-using CadastroAPI.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -19,12 +16,12 @@ namespace CadastroAPI
         public class CadastroController : ControllerBase
         {
             private readonly IUserRepository _userRepository;
-            
+
             public CadastroController(IUserRepository userRepository)
             {
                 _userRepository = userRepository;
             }
-            
+
             [HttpPost("register")]
             public async Task<IActionResult> Register([FromBody] User user)
             {
@@ -46,7 +43,7 @@ namespace CadastroAPI
 
                 var token = GenerateJwtToken(user);
                 return Ok(new { Token = token });
-            }            
+            }
 
             [HttpPost("recover-password")]
             public async Task<IActionResult> RecoverPassword([FromBody] RecoverPasswordRequest request)
@@ -67,8 +64,8 @@ namespace CadastroAPI
                 if (user == null)
                     return NotFound();
 
-               // user.
-               // await _context.SaveChangesAsync();
+                // user.
+                // await _context.SaveChangesAsync();
 
                 return Ok();
             }

@@ -19,7 +19,7 @@ namespace CadastroAPI.Validators
             //RuleFor(u => u.Endereco).NotEmpty();
             //RuleFor(u => u.Numero).NotEmpty();
             RuleFor(u => u.TelefoneCelular).NotEmpty().Matches(@"^\d{10,11}$").WithMessage("o numero informado não é válido.");
-           // RuleFor(u => u.Senha).NotEmpty();
+            // RuleFor(u => u.Senha).NotEmpty();
         }
 
         private bool IsAValidCPF(string cpf)

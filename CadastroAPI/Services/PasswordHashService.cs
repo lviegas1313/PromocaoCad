@@ -1,6 +1,4 @@
-﻿using BCrypt.Net;
-
-namespace CadastroAPI.Services
+﻿namespace CadastroAPI.Services
 {
     public class PasswordHashService : IPasswordHashService
     {

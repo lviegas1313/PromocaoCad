@@ -1,7 +1,6 @@
 ﻿using CadastroAPI.Models;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using System.IO;
 
 namespace CadastroAPI.Context
 {

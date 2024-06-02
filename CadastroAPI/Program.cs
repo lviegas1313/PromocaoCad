@@ -23,6 +23,7 @@ services.AddDbContext<CadastroContext>(options =>
 //Add repositories
 services.AddScoped<IUserRepository, UserRepository>();
 services.AddScoped<INotaFiscalRepository, NotaFiscalRepository>();
+services.AddScoped<INumerosSorteRepository, NumerosSorteRepository>();
 
 
 // Add FluentValidation

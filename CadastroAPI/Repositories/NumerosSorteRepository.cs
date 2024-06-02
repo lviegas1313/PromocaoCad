@@ -14,9 +14,9 @@ namespace CadastroAPI.Repositories
             _context = context;
         }
 
-        public IEnumerable<NumerosSorte> GerarNumerosSorte(string idUsuario, string idNotaFiscal, int quantidade)
+        public IEnumerable<NumeroSorte> GerarNumerosSorte(string idUsuario, string idNotaFiscal, int quantidade)
         {
-            var numerosSorte = new List<NumerosSorte>();
+            var numerosSorte = new List<NumeroSorte>();
 
             var idUsuarioParam = new SqlParameter("@IdUsuario", idUsuario);
             var idNotaFiscalParam = new SqlParameter("@IdNotaFiscal", idNotaFiscal);
@@ -26,6 +26,46 @@ namespace CadastroAPI.Repositories
 
             return numerosSorte;
         }
+        public async Task<IEnumerable<NumeroSorte>> GerarNumerosSorteAsync(string idUsuario, string idNotaFiscal, int quantidade)
+        {
+            var idUsuarioParam = new SqlParameter("@IdUsuario", idUsuario);
+            var idNotaFiscalParam = new SqlParameter("@IdNotaFiscal", idNotaFiscal);
+            var quantidadeParam = new SqlParameter("@Quantidade", quantidade);
+
+            // Utilize o método FromSqlRawAsync para operações assíncronas
+            var numerosSorte = await _context.NumerosSorte.FromSqlRaw("EXEC GerarNumerosAleatorios @IdUsuario, @IdNotaFiscal, @Quantidade", idUsuarioParam, idNotaFiscalParam, quantidadeParam).ToListAsync();
+
+            return numerosSorte;
+        }
+
+        public async Task<List<NumeroSorteDTO>> GetNumerosPorNotaFiscal(string notaFiscalId)
+        {
+            var numerosSorte = await _context.NumerosSorte
+                .Where(n => n.NotaFiscalId == notaFiscalId)
+                .Select(n => new NumeroSorteDTO
+                {
+                    Numero = n.Numero,
+                    DataSorteio = n.DataSorteio
+                })
+                .ToListAsync();
+
+            return numerosSorte;
+        }
+
+        public async Task<List<NumeroSorteDTO>> GetNumerosPorUsuario(string usuarioId)
+        {
+            var numerosSorte = await _context.NumerosSorte
+                .Where(n => n.UsuarioId == usuarioId)
+                .Select(n => new NumeroSorteDTO
+                {
+                    Numero = n.Numero,
+                    DataSorteio = n.DataSorteio
+                })
+                .ToListAsync();
+
+            return numerosSorte;
+        }
+
     }
 
 }

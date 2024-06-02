@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace CadastroAPI.Models
 {
@@ -22,26 +23,18 @@ namespace CadastroAPI.Models
         public DateTime DataCompra { get; set; }
 
         [Required]
-        public List<Produto>? Produtos { get; set; }
+        public List<Produto> Produtos { get; set; } = new List<Produto>();      
 
-        public Imagem Imagem { get; set; } // Referência para a imagem
-
-        public NotaFiscal(string notaCupom, string cnpj, DateTime dataCompra)
-        {
-            NotaCupom = notaCupom;
-            Cnpj = cnpj;
-            DataCompra = dataCompra;
-        }
         public NotaFiscal() { }
 
-        private int QuantidaderNumerosSorte()
+        public int CalcularNumerosSorte()
         {
-            if (Produtos == null || Produtos.Count < 2)
-                return 0; // Não há produtos suficientes para gerar números da sorte
+            if (Produtos == null || Produtos.Sum(p => p.Quantidade) < 2)
+                return 0;
 
-            // Contagem de produtos participantes e de fermento
-            int produtosParticipantes = Produtos.Count;
-            int quantidadeFermento = Produtos.Count(p => p.Nome == prodCoringa);
+            // Contagem total de produtos participantes e de fermento
+            int produtosParticipantes = Produtos.Sum(p => p.Quantidade);
+            int quantidadeFermento = Produtos.Where(p => p.Nome == prodCoringa).Sum(p => p.Quantidade);
 
             // Cálculo do número de sorte
             int numerosSorte = produtosParticipantes / 2; // 1 número de sorte a cada 2 produtos participantes
@@ -52,76 +45,68 @@ namespace CadastroAPI.Models
                 numerosSorte++; // Adiciona mais 1 número de sorte se a quantidade de produtos for ímpar e houver fermento
             }
             return numerosSorte;
-
-
         }
 
-    }
-    public class Produto
-    {
-        [Key]
-        public string Id { get; set; }
-        public string NotaFiscalId { get; set; } // Chave estrangeira para a nota fiscal
-        [Required]
-        public string Nome { get; set; }
-        public string Versao { get; set; }
-        [Required]
-        public int Quantidade { get; set; }
-        [Required]
-        public decimal Valor { get; set; }
-
-        public Produto() { }
-        public Produto(string nome, string versao)
+        public static NotaFiscal FromDto(NotaFiscalDTO dto, string usuarioId= "35288343748")//remover cpf apenas teste 
         {
-            Nome = nome;
-            Versao = versao;
-        }
-    }
-    public class Imagem
-    {
-        [Key]
-        public string NotaFiscalId { get; set; } // Chave estrangeira para a nota fiscal
-        [Required]
-        public byte[] Dados { get; set; } // Dados da imagem para armazenamento
-
-        [NotMapped]
-        public MemoryStream ImagemStream
-        {
-            get => new MemoryStream(Dados);
-            set
+            return new NotaFiscal
             {
-                using (var memoryStream = new MemoryStream())
-                {
-                    value.CopyTo(memoryStream);
-                    Dados = memoryStream.ToArray();
-                }
-            }
-        }
-        public Imagem() { }
-        public Imagem(string notaFiscalId, IFormFile imagem)
-        {
-            NotaFiscalId = notaFiscalId;
-            SetImagemFromIFormFile(imagem);
+                UsuarioId = usuarioId,
+                NotaCupom = dto.NotaCupom,
+                Cnpj = dto.Cnpj,
+                DataCompra = dto.DataCompra,
+                Produtos = dto.Produtos.Select(p => Produto.FromDto(p, dto.NotaCupom)).ToList()
+            };
         }
 
-        public void SetImagemFromIFormFile(IFormFile imagem)
+        public NotaFiscalDTO ToDto()
         {
-            using (var stream = new MemoryStream())
+            return new NotaFiscalDTO
             {
-                imagem.CopyTo(stream);
-                ImagemStream = stream;
-            }
+                NotaCupom = this.NotaCupom,
+                Cnpj = this.Cnpj,
+                DataCompra = this.DataCompra,
+                Produtos = this.Produtos.Select(p => p.ToDto()).ToList()
+            };
+        }
+        public NotaFiscalDTO ToDto(List<NumeroSorteDTO> numeros)
+        {          
+
+            return new NotaFiscalDTO
+            {
+                NotaCupom = this.NotaCupom,
+                Cnpj = this.Cnpj,
+                DataCompra = this.DataCompra,
+                Produtos = this.Produtos.Select(p => p.ToDto()).ToList(),
+                Numeros = numeros
+            };
         }
     }
-    public class NumerosSorte()
+
+    public class NotaFiscalDTO
     {
         [Required]
-        public string NotaFiscalId { get; set; }
+        public string NotaCupom { get; set; } // Chave primária junto com UsuarioId
+
         [Required]
-        public string UsuarioId { get; set; }
-        [Key]
-        public string Numero { get; set; }
-        public DateOnly DataSorteio { get; set; }
-        public DateTime DataCadastro { get; set; }
+        [MaxLength(14)]
+        public string Cnpj { get; set; }
+
+        [Required]
+        public DateTime DataCompra { get; set; }
+
+        [Required]
+        public List<ProdutoDTO> Produtos { get; set; }
+        [JsonIgnore]
+        public List<NumeroSorteDTO>? Numeros { get; set; }
+
+    }
+    public class NotaFiscalWithImageDTO
+    {
+        [Required]
+        public NotaFiscalDTO NotaFiscal { get; set; }
+
+        [Required]
+        public IFormFile Imagem { get; set; }
     }
 }

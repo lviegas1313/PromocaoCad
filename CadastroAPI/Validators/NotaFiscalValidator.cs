@@ -38,8 +38,8 @@ namespace CadastroAPI.Validators
                 .NotEmpty().WithMessage("A data da compra é obrigatória.")
                 .LessThanOrEqualTo(DateTime.Now).WithMessage("A data da compra não pode ser no futuro.");
 
-            RuleFor(n => n.Imagem)
-                .NotNull().WithMessage("A imagem é obrigatória.");
+            //RuleFor(n => n.Imagem)
+            //    .NotNull().WithMessage("A imagem é obrigatória.");
 
             RuleForEach(n => n.Produtos)
                 .SetValidator(new ProdutoValidator());

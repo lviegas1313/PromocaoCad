@@ -6,20 +6,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace CadastroAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class notas_imagem : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<string>(
-                name: "Senha",
-                table: "Users",
-                type: "nvarchar(max)",
-                nullable: true,
-                oldClrType: typeof(string),
-                oldType: "nvarchar(250)",
-                oldMaxLength: 250);
-
             migrationBuilder.CreateTable(
                 name: "Imagens",
                 columns: table => new
@@ -30,6 +21,20 @@ namespace CadastroAPI.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Imagens", x => x.NotaFiscalId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "NotasFiscais",
+                columns: table => new
+                {
+                    UsuarioId = table.Column<string>(type: "nvarchar(11)", maxLength: 11, nullable: true),
+                    NotaCupom = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Cnpj = table.Column<string>(type: "nvarchar(14)", maxLength: 14, nullable: false),
+                    DataCompra = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_NotasFiscais", x => x.NotaCupom);
                 });
 
             migrationBuilder.CreateTable(
@@ -48,23 +53,25 @@ namespace CadastroAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "NotasFiscais",
+                name: "Users",
                 columns: table => new
                 {
-                    UsuarioId = table.Column<string>(type: "nvarchar(11)", maxLength: 11, nullable: true),
-                    NotaCupom = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Cnpj = table.Column<string>(type: "nvarchar(14)", maxLength: 14, nullable: false),
-                    DataCompra = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ImagemNotaFiscalId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    CPF = table.Column<string>(type: "nvarchar(11)", maxLength: 11, nullable: false),
+                    Nome = table.Column<string>(type: "nvarchar(120)", maxLength: 120, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    DataNascimento = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Estado = table.Column<string>(type: "nvarchar(2)", maxLength: 2, nullable: false),
+                    CEP = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    Cidade = table.Column<string>(type: "nvarchar(120)", maxLength: 120, nullable: true),
+                    Endereco = table.Column<string>(type: "nvarchar(120)", maxLength: 120, nullable: true),
+                    Numero = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: true),
+                    Complemento = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    TelefoneCelular = table.Column<string>(type: "nvarchar(11)", maxLength: 11, nullable: false),
+                    Senha = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_NotasFiscais", x => x.NotaCupom);
-                    table.ForeignKey(
-                        name: "FK_NotasFiscais_Imagens_ImagemNotaFiscalId",
-                        column: x => x.ImagemNotaFiscalId,
-                        principalTable: "Imagens",
-                        principalColumn: "NotaFiscalId");
+                    table.PrimaryKey("PK_Users", x => x.CPF);
                 });
 
             migrationBuilder.CreateTable(
@@ -95,19 +102,23 @@ namespace CadastroAPI.Migrations
                 column: "Cnpj");
 
             migrationBuilder.CreateIndex(
-                name: "IX_NotasFiscais_ImagemNotaFiscalId",
-                table: "NotasFiscais",
-                column: "ImagemNotaFiscalId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Produtos_NotaFiscalId",
                 table: "Produtos",
                 column: "NotaFiscalId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Email",
+                table: "Users",
+                column: "Email",
+                unique: true);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Imagens");
+
             migrationBuilder.DropTable(
                 name: "NumerosSorte");
 
@@ -115,21 +126,10 @@ namespace CadastroAPI.Migrations
                 name: "Produtos");
 
             migrationBuilder.DropTable(
-                name: "NotasFiscais");
+                name: "Users");
 
             migrationBuilder.DropTable(
-                name: "Imagens");
-
-            migrationBuilder.AlterColumn<string>(
-                name: "Senha",
-                table: "Users",
-                type: "nvarchar(250)",
-                maxLength: 250,
-                nullable: false,
-                defaultValue: "",
-                oldClrType: typeof(string),
-                oldType: "nvarchar(max)",
-                oldNullable: true);
+                name: "NotasFiscais");
         }
     }
 }

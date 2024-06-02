@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CadastroAPI.Migrations
 {
     [DbContext(typeof(CadastroContext))]
-    [Migration("20240531163539_notas_imagem_produto_numero")]
-    partial class notas_imagem_produto_numero
+    [Migration("20240601202346_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -53,9 +53,6 @@ namespace CadastroAPI.Migrations
                     b.Property<DateTime>("DataCompra")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("ImagemNotaFiscalId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("UsuarioId")
                         .HasMaxLength(11)
                         .HasColumnType("nvarchar(11)")
@@ -65,12 +62,10 @@ namespace CadastroAPI.Migrations
 
                     b.HasIndex("Cnpj");
 
-                    b.HasIndex("ImagemNotaFiscalId");
-
                     b.ToTable("NotasFiscais");
                 });
 
-            modelBuilder.Entity("CadastroAPI.Models.NumerosSorte", b =>
+            modelBuilder.Entity("CadastroAPI.Models.NumeroSorte", b =>
                 {
                     b.Property<string>("Numero")
                         .HasColumnType("nvarchar(450)");
@@ -97,6 +92,7 @@ namespace CadastroAPI.Migrations
             modelBuilder.Entity("CadastroAPI.Models.Produto", b =>
                 {
                     b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Nome")
@@ -111,7 +107,7 @@ namespace CadastroAPI.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("Valor")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18, 2)");
 
                     b.Property<string>("Versao")
                         .IsRequired()
@@ -183,15 +179,6 @@ namespace CadastroAPI.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("CadastroAPI.Models.NotaFiscal", b =>
-                {
-                    b.HasOne("CadastroAPI.Models.Imagem", "Imagem")
-                        .WithMany()
-                        .HasForeignKey("ImagemNotaFiscalId");
-
-                    b.Navigation("Imagem");
                 });
 
             modelBuilder.Entity("CadastroAPI.Models.Produto", b =>

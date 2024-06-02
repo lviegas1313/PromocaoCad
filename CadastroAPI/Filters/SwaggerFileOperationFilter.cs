@@ -11,35 +11,38 @@ namespace CadastroAPI.Filters
                 .Where(p => p.ModelMetadata.ModelType == typeof(IFormFile) || p.ModelMetadata.ModelType == typeof(IFormFileCollection))
                 .ToList();
 
-            if (!fileParams.Any())
+            if (fileParams.Any())
             {
-                return;
-            }
-
-            foreach (var param in fileParams)
-            {
-                operation.Parameters.Remove(operation.Parameters.First(p => p.Name == param.Name));
-                operation.RequestBody = new OpenApiRequestBody
+                foreach (var param in fileParams)
                 {
-                    Content = new Dictionary<string, OpenApiMediaType>
+                    var parameterToRemove = operation.Parameters.FirstOrDefault(p => p.Name == param.Name);
+                    if (parameterToRemove != null)
                     {
-                        ["multipart/form-data"] = new OpenApiMediaType
+                        operation.Parameters.Remove(parameterToRemove);
+                    }
+
+                    operation.RequestBody = new OpenApiRequestBody
+                    {
+                        Content = new Dictionary<string, OpenApiMediaType>
                         {
-                            Schema = new OpenApiSchema
+                            ["multipart/form-data"] = new OpenApiMediaType
                             {
-                                Type = "object",
-                                Properties =
-                            {
-                                [param.Name] = new OpenApiSchema
+                                Schema = new OpenApiSchema
                                 {
-                                    Type = "string",
-                                    Format = "binary"
+                                    Type = "object",
+                                    Properties =
+                                {
+                                    [param.Name] = new OpenApiSchema
+                                    {
+                                        Type = "string",
+                                        Format = "binary"
+                                    }
+                                }
                                 }
                             }
-                            }
                         }
-                    }
-                };
+                    };
+                }
             }
         }
     }

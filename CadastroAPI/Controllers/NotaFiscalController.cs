@@ -2,6 +2,7 @@
 using CadastroAPI.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace CadastroAPI.Controllers
 {
@@ -26,40 +27,54 @@ namespace CadastroAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            var notaFiscal = NotaFiscal.FromDto(notaFiscalDto);
 
-            //try
-            //{
-            //await _repository.AddNotaFiscalAsync(notaFiscal);
-            var nun = notaFiscal.CalcularNumerosSorte();
-            await _repositoryNumerosSorte.GerarNumerosSorteAsync(notaFiscal.UsuarioId, notaFiscal.NotaCupom, nun);
-            var numeros = _repositoryNumerosSorte.GetNumerosPorNotaFiscal(notaFiscal.NotaCupom).Result;
-            return Ok(notaFiscal.ToDto(numeros));
-            //}
-            //catch (Exception)
-            //{
-            //    return BadRequest("Ocorreu um erro ao adicionar a nota fiscal.");
-            //}
+            try
+            {
+                var notaFiscal = NotaFiscal.FromDto(notaFiscalDto);
+                await _repository.AddNotaFiscalAsync(notaFiscal);
+                var nun = notaFiscal.CalcularNumerosSorte();
+                await _repositoryNumerosSorte.GerarNumerosSorteAsync(notaFiscal.UsuarioId, notaFiscal.NotaCupom, nun);
+                var numeros = _repositoryNumerosSorte.GetNumerosPorNotaFiscal(notaFiscal.NotaCupom).Result;
+                return Ok(notaFiscal.ToDto(numeros));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Ocorreu um erro ao adicionar a nota fiscal." + ex);
+            }
         }
 
         [HttpPost("add-nota-fiscal-with-image")]
-        public async Task<IActionResult> AddNotaFiscalWithImage([FromForm] NotaFiscalWithImageDTO notaFiscalWithImageDto)
+        public async Task<IActionResult> AddNotaFiscalWithImage([FromForm] NotaFiscalDTO notaFiscalDto)
         {
+            IFormFile imagemDto = null;
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             try
             {
-                var usuarioId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-                var notaFiscal = NotaFiscal.FromDto(notaFiscalWithImageDto.NotaFiscal, usuarioId);
-                var imagem = new Imagem(notaFiscal.NotaCupom, notaFiscalWithImageDto.Imagem);
+                //var usuarioId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var aux = JsonSerializer.Deserialize<List<ProdutoDTO>>(notaFiscalDto.Produtosstring);
+            notaFiscalDto.Produtos = aux;
+            var notaFiscal = NotaFiscal.FromDto(notaFiscalDto);
 
+            if (notaFiscalDto.Imagem != null)
+            {
+                var imagem = new Imagem(notaFiscal.NotaCupom, notaFiscalDto.Imagem);
                 await _repository.AddNotaFiscalAndImagemAsync(notaFiscal, imagem);
+                var nun = notaFiscal.CalcularNumerosSorte();
+                await _repositoryNumerosSorte.GerarNumerosSorteAsync(notaFiscal.UsuarioId, notaFiscal.NotaCupom, nun);
+                var numeros = _repositoryNumerosSorte.GetNumerosPorNotaFiscal(notaFiscal.NotaCupom).Result;
+                return Ok(notaFiscal.ToDto(numeros));
+            }
 
-                return Ok("Nota fiscal adicionada com sucesso");
+            return BadRequest("imagem da nota precisa ser enviada"); ;
             }
             catch (Exception ex)
             {
                 return BadRequest("Ocorreu um erro ao adicionar a nota fiscal.");
             }
-        }
+        }        
 
         [HttpGet("{usuarioId}/{notaCupom}")]
         public async Task<IActionResult> GetNotaFiscal(string usuarioId, string notaCupom)

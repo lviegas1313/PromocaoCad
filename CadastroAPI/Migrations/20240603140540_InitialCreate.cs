@@ -44,7 +44,7 @@ namespace CadastroAPI.Migrations
                     Numero = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     NotaFiscalId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     UsuarioId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DataSorteio = table.Column<DateOnly>(type: "date", nullable: false),
+                    DataSorteio = table.Column<DateTime>(type: "date", nullable: false),
                     DataCadastro = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>

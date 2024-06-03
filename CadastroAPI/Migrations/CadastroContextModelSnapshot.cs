@@ -70,7 +70,7 @@ namespace CadastroAPI.Migrations
                     b.Property<DateTime>("DataCadastro")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateOnly>("DataSorteio")
+                    b.Property<DateTime>("DataSorteio")
                         .HasColumnType("date");
 
                     b.Property<string>("NotaFiscalId")

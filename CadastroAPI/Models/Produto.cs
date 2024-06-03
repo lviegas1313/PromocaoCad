@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace CadastroAPI.Models
 {
@@ -36,6 +38,7 @@ namespace CadastroAPI.Models
             };
         }
 
+
         public ProdutoDTO ToDto()
         {
             return new ProdutoDTO
@@ -50,15 +53,17 @@ namespace CadastroAPI.Models
 
     public class ProdutoDTO
     {
-        [Required]
+        [JsonPropertyName("nome")] // Define o nome da propriedade JSON correspondente
         public string Nome { get; set; }
 
+        [JsonPropertyName("versao")]
         public string Versao { get; set; }
 
-        [Required]
+        [JsonPropertyName("quantidade")]
         public int Quantidade { get; set; }
 
-        [Required]
+        [JsonPropertyName("valor")]
         public decimal Valor { get; set; }
+
     }
 }

@@ -1,12 +1,15 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Swashbuckle.AspNetCore.Annotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Runtime.CompilerServices;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace CadastroAPI.Models
 {
     public class NotaFiscal
     {
-        const string prodCoringa = "Fermento";
+        const string prodCoringa = "fermento";
 
         [Key, Column(Order = 0)]
         [MaxLength(11)]
@@ -24,6 +27,8 @@ namespace CadastroAPI.Models
 
         [Required]
         public List<Produto> Produtos { get; set; } = new List<Produto>();
+        [JsonIgnore]
+        public List<NumeroSorteDTO>? Numeros { get; set; }
 
         public NotaFiscal() { }
 
@@ -34,7 +39,7 @@ namespace CadastroAPI.Models
 
             // Contagem total de produtos participantes e de fermento
             int produtosParticipantes = Produtos.Sum(p => p.Quantidade);
-            int quantidadeFermento = Produtos.Where(p => p.Nome == prodCoringa).Sum(p => p.Quantidade);
+            int quantidadeFermento = Produtos.Where(p => p.Nome.ToLower() == prodCoringa).Sum(p => p.Quantidade);
 
             // Cálculo do número de sorte
             int numerosSorte = produtosParticipantes / 2; // 1 número de sorte a cada 2 produtos participantes
@@ -57,7 +62,7 @@ namespace CadastroAPI.Models
                 DataCompra = dto.DataCompra,
                 Produtos = dto.Produtos.Select(p => Produto.FromDto(p, dto.NotaCupom)).ToList()
             };
-        }
+        }       
 
         public NotaFiscalDTO ToDto()
         {
@@ -85,7 +90,7 @@ namespace CadastroAPI.Models
 
     public class NotaFiscalDTO
     {
-        [Required]
+        [Key]
         public string NotaCupom { get; set; } // Chave primária junto com UsuarioId
 
         [Required]
@@ -96,17 +101,13 @@ namespace CadastroAPI.Models
         public DateTime DataCompra { get; set; }
 
         [Required]
-        public List<ProdutoDTO> Produtos { get; set; }
-        [JsonIgnore]
+        public string Produtosstring { get; set; }
+        [SwaggerIgnore]
+        public List<ProdutoDTO>? Produtos { get; set; }
+
         public List<NumeroSorteDTO>? Numeros { get; set; }
 
-    }
-    public class NotaFiscalWithImageDTO
-    {
-        [Required]
-        public NotaFiscalDTO NotaFiscal { get; set; }
-
-        [Required]
-        public IFormFile Imagem { get; set; }
-    }
+        public IFormFile? Imagem { get; set; }
+        
+    }    
 }

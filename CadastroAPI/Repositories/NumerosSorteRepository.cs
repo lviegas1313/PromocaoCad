@@ -36,7 +36,7 @@ namespace CadastroAPI.Repositories
 
 
             // Utilize o método FromSqlRawAsync para operações assíncronas
-            var numerosSorte = await _context.NumerosSorte.FromSqlRaw("EXEC GerarNumerosAleatorios @IdUsuario, @IdNotaFiscal, @Quantidade", idUsuarioParam, idNotaFiscalParam, quantidadeParam, dataSorteioParam).ToListAsync();
+            var numerosSorte = await _context.NumerosSorte.FromSqlRaw("EXEC GerarNumerosAleatorios @IdUsuario, @IdNotaFiscal, @Quantidade,@Datasorteio", idUsuarioParam, idNotaFiscalParam, quantidadeParam, dataSorteioParam).ToListAsync();
 
             return numerosSorte;
         }

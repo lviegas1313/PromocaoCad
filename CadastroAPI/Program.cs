@@ -1,5 +1,6 @@
 using CadastroAPI.Context;
 using CadastroAPI.Filters;
+using CadastroAPI.Models;
 using CadastroAPI.Repositories;
 using CadastroAPI.Validators;
 using FluentValidation.AspNetCore;
@@ -7,7 +8,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Reflection;
 using System.Text;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -28,9 +32,9 @@ services.AddScoped<IDatabaseRepository, DatabaseRepository>();
 
 
 // Add FluentValidation
-services.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<UserValidator>());
-services.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<NotaFiscalValidator>());
-services.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<ProdutoValidator>());
+//services.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<UserValidator>());
+//services.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<NotaFiscalValidator>());
+//services.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<ProdutoValidator>());
 
 // Add Authentication
 services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -65,15 +69,19 @@ services.AddSwaggerGen(c =>
     {
         Title = "CadastroAPI",
         Version = "v1",
-        Description = "API de Cadastro de Usuários",
-        Contact = new OpenApiContact
-        {
-            Name = "Seu Nome",
-            Email = "seu@email.com"
-        }
+        Description = "API de Cadastro de Usuários"
+       
     });
-    c.OperationFilter<SwaggerFileOperationFilter>();
+    //c.MapType<List<ProdutoDTO>>(() => new OpenApiSchema { Type = "object", Properties = new Dictionary<string, OpenApiSchema>() });
+    c.SchemaFilter<CorrectArraySchemaFilter>(); // Adiciona o SchemaFilter
+    c.OperationFilter<FileUploadOperationFilter>();
 });
+
+ services.AddControllers()
+            .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+            });
 
 var app = builder.Build();
 
@@ -118,6 +126,7 @@ using (var scope = app.Services.CreateScope())
     var sqlFilePath = Path.Combine(AppContext.BaseDirectory, "YourProcedureName.sql");
     await dbRepository.EnsureProcedureExistsFromFileAsync(sqlFilePath);
 }
+
 
 
 app.Run();

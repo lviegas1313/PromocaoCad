@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CadastroAPI.Migrations
 {
     [DbContext(typeof(CadastroContext))]
-    [Migration("20240602232752_InitialCreate")]
+    [Migration("20240603140540_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -73,7 +73,7 @@ namespace CadastroAPI.Migrations
                     b.Property<DateTime>("DataCadastro")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateOnly>("DataSorteio")
+                    b.Property<DateTime>("DataSorteio")
                         .HasColumnType("date");
 
                     b.Property<string>("NotaFiscalId")

@@ -19,6 +19,8 @@ namespace CadastroAPI.Repositories
             {
                 try
                 {
+                    await CheckIfNotaCupomExistsAsync(notaFiscal.NotaCupom);
+
                     await _context.NotasFiscais.AddAsync(notaFiscal);
                     if (notaFiscal.Produtos != null && notaFiscal.Produtos.Any())
                     {
@@ -27,12 +29,20 @@ namespace CadastroAPI.Repositories
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();
                 }
+                catch (NotaFiscalExistsException ex)
+                {
+                    // Retornar erro 400 com a mensagem da exceção
+                    await transaction.RollbackAsync();
+                    throw new HttpRequestException(ex.Message);
+                }
                 catch
                 {
+                    // Rollback em caso de exceção não tratada
                     await transaction.RollbackAsync();
                     throw;
                 }
             }
+           
         }
 
         public async Task AddNotaFiscalAndImagemAsync(NotaFiscal notaFiscal, Imagem imagem)
@@ -41,6 +51,8 @@ namespace CadastroAPI.Repositories
             {
                 try
                 {
+                    await CheckIfNotaCupomExistsAsync(notaFiscal.NotaCupom);
+
                     await _context.NotasFiscais.AddAsync(notaFiscal);
                     if (notaFiscal.Produtos != null && notaFiscal.Produtos.Any())
                     {
@@ -50,8 +62,15 @@ namespace CadastroAPI.Repositories
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();
                 }
+                catch (NotaFiscalExistsException ex)
+                {
+                    // Retornar erro 400 com a mensagem da exceção
+                    await transaction.RollbackAsync();
+                    throw new HttpRequestException(ex.Message);
+                }
                 catch
                 {
+                    // Rollback em caso de exceção não tratada
                     await transaction.RollbackAsync();
                     throw;
                 }
@@ -62,7 +81,6 @@ namespace CadastroAPI.Repositories
         {
             var notaFiscal = await _context.NotasFiscais
                 .Include(n => n.Produtos)
-                //.Include(n => n.Imagem)
                 .FirstOrDefaultAsync(n => n.UsuarioId == usuarioId && n.NotaCupom == notaCupom);
 
             return notaFiscal ?? new NotaFiscal(); // Retorna uma nota fiscal vazia se não encontrar
@@ -72,11 +90,25 @@ namespace CadastroAPI.Repositories
         {
             var notasFiscais = await _context.NotasFiscais
                 .Include(n => n.Produtos)
-                //.Include(n => n.Imagem)
                 .Where(n => n.UsuarioId == usuarioId)
                 .ToListAsync();
 
             return notasFiscais.Count == 0 ? new List<NotaFiscal>() : notasFiscais; // Retorna uma lista vazia se não houver resultados
+        }
+       
+        private async Task CheckIfNotaCupomExistsAsync(string notaCupom)
+        {
+            var existingNotaFiscal = await _context.NotasFiscais.FirstOrDefaultAsync(n => n.NotaCupom == notaCupom);
+            if (existingNotaFiscal != null)
+            {
+                throw new NotaFiscalExistsException("Nota fiscal com o mesmo notaCupom já existe no banco de dados.");
+            }
+        }
+        public class NotaFiscalExistsException : Exception
+        {
+            public NotaFiscalExistsException(string message) : base(message)
+            {
+            }
         }
     }
 }

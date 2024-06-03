@@ -14,7 +14,7 @@
         [Key]
         public string Numero { get; set; }
 
-        public DateOnly DataSorteio { get; set; }
+        public DateTime DataSorteio { get; set; }
 
         public DateTime DataCadastro { get; set; }
 
@@ -41,9 +41,10 @@
 
     public class NumeroSorteDTO
     {
+        [Key]
         public string Numero { get; set; }
 
-        public DateOnly DataSorteio { get; set; }
+        public DateTime DataSorteio { get; set; }
     }
 
 }

@@ -4,10 +4,10 @@ namespace CadastroAPI.Repositories
 {
     public interface IUserRepository
     {
-        Task<User> GetByIdAsync(string CPF);
-        Task<User> GetByEmailAsync(string email);
-        Task<User> AddAsync(User user);
-        Task<User> UpdateAsync(User user);
-        Task DeleteAsync(User user);
+        Task<Usuario> GetByIdAsync(string CPF);
+        Task<Usuario> GetByEmailAsync(string email);
+        Task<Usuario> AddAsync(Usuario user);
+        Task<Usuario> UpdateAsync(Usuario user);
+        Task DeleteAsync(Usuario user);
     }
 }

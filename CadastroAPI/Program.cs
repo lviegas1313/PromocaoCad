@@ -12,6 +12,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Text.Json;
+using CadastroAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -30,11 +31,12 @@ services.AddScoped<INotaFiscalRepository, NotaFiscalRepository>();
 services.AddScoped<INumerosSorteRepository, NumerosSorteRepository>();
 services.AddScoped<IDatabaseRepository, DatabaseRepository>();
 
-
+services.AddTransient<IEmailService, EmailService>();
+services.AddMemoryCache();
 // Add FluentValidation
-//services.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<UserValidator>());
-//services.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<NotaFiscalValidator>());
-//services.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<ProdutoValidator>());
+services.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<UserValidator>());
+services.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<NotaFiscalValidator>());
+services.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<ProdutoValidator>());
 
 // Add Authentication
 services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

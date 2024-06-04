@@ -1,0 +1,49 @@
+﻿@page "/resetpassword"
+
+<h3>Reset Password</h3>
+
+@if (TokenValid)
+{
+    <EditForm Model="@ResetPasswordModel" OnValidSubmit="@ResetPassword">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <InputText @bind-Value="ResetPasswordModel.NewPassword" type="password" placeholder="New Password" />
+        <button type="submit">Reset Password</button>
+    </EditForm>
+}
+else
+{
+    <p>Invalid or expired reset password token.</p>
+}
+
+@code {
+    [Inject]
+    private NavigationManager NavigationManager { get; set; }
+
+    [Parameter]
+    public string Token { get; set; }
+
+    private ResetPasswordModel ResetPasswordModel { get; set; } = new ResetPasswordModel();
+
+    private bool TokenValid { get; set; }
+
+    protected override void OnInitialized()
+    {
+        // Verificar a validade do token aqui
+        TokenValid = CheckTokenValidity();
+    }
+
+    private bool CheckTokenValidity()
+    {
+        // verificar a validade do token
+       
+        return true; 
+    }
+
+    private void ResetPassword()
+    {
+        //  redefinir a senha do usuárioha
+        NavigationManager.NavigateTo("/login");
+    }
+}

@@ -5,7 +5,7 @@ VisualStudioVersion = 17.10.34916.146
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CadastroAPI", "CadastroAPI\CadastroAPI.csproj", "{060E577A-D791-4B55-9EDE-2D0150231A52}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CadastroAPITests1", "CadastroAPITests1\CadastroAPITests1.csproj", "{56765910-D5C7-4F7A-A83E-6EF77018F04C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CadastroAPITests1", "CadastroAPITests1\CadastroAPITests1.csproj", "{56765910-D5C7-4F7A-A83E-6EF77018F04C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

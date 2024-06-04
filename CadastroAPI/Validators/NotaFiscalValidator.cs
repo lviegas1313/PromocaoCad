@@ -3,28 +3,12 @@ using FluentValidation;
 
 namespace CadastroAPI.Validators
 {
-    public class ProdutoValidator : AbstractValidator<Produto>
-    {
-        public ProdutoValidator()
-        {
-            RuleFor(p => p.Nome)
-                .NotEmpty().WithMessage("O nome do produto é obrigatório.")
-                .MaximumLength(100).WithMessage("O nome do produto deve ter no máximo 100 caracteres.");
 
-            RuleFor(p => p.Versao)
-                .NotEmpty().WithMessage("A versão do produto é obrigatória.")
-                .MaximumLength(10).WithMessage("A versão do produto deve ter no máximo 10 caracteres.");
-        }
-    }
-
-    public class NotaFiscalValidator : AbstractValidator<NotaFiscal>
+    public class NotaFiscalValidator : AbstractValidator<NotaFiscalDTO>
     {
         public NotaFiscalValidator()
         {
-            RuleFor(n => n.UsuarioId)
-              .NotEmpty().WithMessage("O Cpf do usuario é obrigatório.")
-              .MaximumLength(11).WithMessage("O número do cupom deve ter no máximo 11 caracteres.");
-
+            
             RuleFor(n => n.NotaCupom)
                 .NotEmpty().WithMessage("O número do cupom é obrigatório.")
                 .MaximumLength(20).WithMessage("O número do cupom deve ter no máximo 20 caracteres.");

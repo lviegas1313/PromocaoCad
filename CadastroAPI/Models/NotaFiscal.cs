@@ -1,8 +1,6 @@
 ﻿using Swashbuckle.AspNetCore.Annotations;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Runtime.CompilerServices;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace CadastroAPI.Models
@@ -90,6 +88,8 @@ namespace CadastroAPI.Models
 
     public class NotaFiscalDTO
     {
+        [MaxLength(11)]
+        public string UsuarioId { get; set; }
         [Key]
         public string NotaCupom { get; set; } // Chave primária junto com UsuarioId
 

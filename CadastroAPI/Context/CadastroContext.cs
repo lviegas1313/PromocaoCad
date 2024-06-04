@@ -8,7 +8,7 @@ namespace CadastroAPI.Context
     {
         public CadastroContext(DbContextOptions<CadastroContext> options) : base(options) { }
 
-        public DbSet<User> Users { get; set; }
+        public DbSet<Usuario> Users { get; set; }
         public DbSet<NotaFiscal> NotasFiscais { get; set; }
         public DbSet<Produto> Produtos { get; set; }
         public DbSet<Imagem> Imagens { get; set; }
@@ -16,7 +16,7 @@ namespace CadastroAPI.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<User>(entity =>
+            modelBuilder.Entity<Usuario>(entity =>
             {
                 entity.HasKey(e => e.CPF); // Chave primária
                 entity.HasIndex(e => e.Email).IsUnique(); // Índice na coluna Email

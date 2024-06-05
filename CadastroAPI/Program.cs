@@ -13,10 +13,12 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using CadastroAPI.Services;
+using CadastroAPI.ModelBinders;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
+using CadastroAPI.ModelBinders.CadastroAPI.ModelBinders;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
-var config = new ConfigurationBuilder();
 
 // Add services to the container.
 services.AddControllers();
@@ -25,7 +27,7 @@ services.AddControllers();
 services.AddDbContext<CadastroContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-//Add repositories
+// Add repositories
 services.AddScoped<IUserRepository, UserRepository>();
 services.AddScoped<INotaFiscalRepository, NotaFiscalRepository>();
 services.AddScoped<INumerosSorteRepository, NumerosSorteRepository>();
@@ -33,6 +35,7 @@ services.AddScoped<IDatabaseRepository, DatabaseRepository>();
 
 services.AddTransient<IEmailService, EmailService>();
 services.AddMemoryCache();
+
 // Add FluentValidation
 services.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<UserValidator>());
 services.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<NotaFiscalValidator>());
@@ -63,7 +66,6 @@ services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 // Add Authorization
 services.AddAuthorization();
 
-
 // Add Swagger
 services.AddSwaggerGen(c =>
 {
@@ -72,18 +74,55 @@ services.AddSwaggerGen(c =>
         Title = "CadastroAPI",
         Version = "v1",
         Description = "API de Cadastro de Usuários"
-       
     });
-    //c.MapType<List<ProdutoDTO>>(() => new OpenApiSchema { Type = "object", Properties = new Dictionary<string, OpenApiSchema>() });
+
+    // Define o esquema de segurança JWT
+    var securityScheme = new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "JWT Authorization header using the Bearer scheme."
+    };
+
+    c.AddSecurityDefinition("Bearer", securityScheme);
+
+    // Define os requisitos de segurança globais
+    var securityRequirement = new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    };
+
+    c.AddSecurityRequirement(securityRequirement);
+
     c.SchemaFilter<CorrectArraySchemaFilter>(); // Adiciona o SchemaFilter
     c.OperationFilter<FileUploadOperationFilter>();
 });
 
- services.AddControllers()
-            .AddJsonOptions(options =>
-            {
-                options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-            });
+services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+    });
+
+services.AddControllersWithViews(options =>
+{
+    options.ModelBinderProviders.Insert(0, new NotaFiscalDTOBinderProvider());
+    options.ModelBinderProviders.Insert(0, new NotaFiscalDTOBinderProvider());
+
+});
 
 var app = builder.Build();
 
@@ -112,14 +151,11 @@ using (var scope = app.Services.CreateScope())
     var dbRepository = scope.ServiceProvider.GetRequiredService<IDatabaseRepository>();
 
 
-    config.SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("appsettings.json");
-
-    var configuration = config.Build();
+    var configuration = builder.Configuration.GetSection("TruncateTablesOrder");
+    // var configuration = config.Build();
     var tableNames = configuration.GetSection("TruncateTablesOrder").Get<List<string>>();
 
-    await dbRepository.TruncateTablesAsync(tableNames);
-
+    //await dbRepository.TruncateTablesAsync(tableNames);
 
     // Aplicar migrações
     await dbRepository.ApplyMigrationsAsync();
@@ -128,7 +164,5 @@ using (var scope = app.Services.CreateScope())
     var sqlFilePath = Path.Combine(AppContext.BaseDirectory, "YourProcedureName.sql");
     await dbRepository.EnsureProcedureExistsFromFileAsync(sqlFilePath);
 }
-
-
 
 app.Run();

@@ -1,4 +1,5 @@
-﻿using CadastroAPI.Models;
+﻿using CadastroAPI.ModelBinders;
+using CadastroAPI.Models;
 using CadastroAPI.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -61,10 +62,9 @@ namespace CadastroAPI.Controllers
                 {
                     notaFiscalDto.UsuarioId = User.FindFirst(ClaimTypes.Name)?.Value;
                 }
-
-                var usuarioId = User.FindFirst(ClaimTypes.Name).Value;
-                var aux = JsonSerializer.Deserialize<List<ProdutoDTO>>(notaFiscalDto.Produtosstring);
-                notaFiscalDto.Produtos = aux;
+                
+                //var aux = JsonSerializer.Deserialize<List<ProdutoDTO>>(notaFiscalDto.Produtosstring);
+               // notaFiscalDto.Produtos = aux;
                 var notaFiscal = NotaFiscal.FromDto(notaFiscalDto);
 
                 if (notaFiscalDto.Imagem != null)
@@ -79,11 +79,11 @@ namespace CadastroAPI.Controllers
 
                 return BadRequest("imagem da nota precisa ser enviada");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest("Ocorreu um erro ao adicionar a nota fiscal.");
+                return BadRequest("Ocorreu um erro ao adicionar a nota fiscal./n "  + ex);
             }
-        }
+        } 
 
         [HttpGet("{notaCupom}")]
         public async Task<IActionResult> GetNotaFiscal(string notaCupom)
@@ -101,13 +101,13 @@ namespace CadastroAPI.Controllers
 
                 return Ok(notaFiscal);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest("Nota fiscal não encontrada");
+                return BadRequest("Nota fiscal não encontrada /n" +ex);
             }
         }
 
-        [HttpGet("{usuarioId}")]
+        [HttpGet("Nota_fiscais_cupons")]
         public async Task<IActionResult> GetNotasFiscais()
         {
             try
@@ -122,10 +122,10 @@ namespace CadastroAPI.Controllers
 
                 return Ok(notasFiscais);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
-                return BadRequest("Notas fiscais não encontradas");
+                return BadRequest("Notas fiscais não encontradas /n" + ex);
             }
 
         }

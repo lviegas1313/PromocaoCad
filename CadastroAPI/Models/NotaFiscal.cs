@@ -89,6 +89,8 @@ namespace CadastroAPI.Models
     public class NotaFiscalDTO
     {
         [MaxLength(11)]
+        [SwaggerIgnore]
+        [JsonIgnore]
         public string UsuarioId { get; set; }
         [Key]
         public string NotaCupom { get; set; } // Chave primária junto com UsuarioId
@@ -100,9 +102,6 @@ namespace CadastroAPI.Models
         [Required]
         public DateTime DataCompra { get; set; }
 
-        [Required]
-        public string Produtosstring { get; set; }
-        [SwaggerIgnore]
         public List<ProdutoDTO>? Produtos { get; set; }
 
         public List<NumeroSorteDTO>? Numeros { get; set; }

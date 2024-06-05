@@ -7,7 +7,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Caching.Memory;
-using Newtonsoft.Json.Linq;
 
 namespace CadastroAPI
 {
@@ -45,11 +44,11 @@ namespace CadastroAPI
                     return Ok();
 
                 }
-                catch (Exception) 
+                catch (Exception)
                 {
                     return BadRequest("Ocorreu um erro ao adicionar Usuario.");
                 }
-               
+
             }
 
             [HttpPost("login")]
@@ -67,9 +66,9 @@ namespace CadastroAPI
                 catch (Exception)
                 {
 
-                    return BadRequest("Ocorreu um erro ao logar o Usuario."); 
+                    return BadRequest("Ocorreu um erro ao logar o Usuario.");
                 }
-                
+
             }
 
             [HttpPost("recover-password")]
@@ -79,7 +78,7 @@ namespace CadastroAPI
                 {
                     var user = await _userRepository.GetByEmailAsync(request.Email);
 
-                    var resetToken = GeneratePasswordResetToken(); 
+                    var resetToken = GeneratePasswordResetToken();
                     var resetLink = Url.Action(nameof(ResetPassword), "Cadastro", new { token = resetToken }, Request.Scheme);
 
                     var cacheOptions = new MemoryCacheEntryOptions
@@ -91,8 +90,8 @@ namespace CadastroAPI
 
                     var emailContent = $"Por favor, redefina sua senha clicando <a href='{resetLink}'>aqui</a>.";
 
-                    await _emailService.SendEmailAsync(user.Email, "Solicitação de Redefinição de Senha", emailContent);
-                                        
+                    //await _emailService.SendEmailAsync(user.Email, "Solicitação de Redefinição de Senha", emailContent);
+
 
                     return Ok(new { message = "E-mail de redefinição de senha enviado." });
                 }
@@ -122,7 +121,7 @@ namespace CadastroAPI
 
                     return BadRequest("Ocorreu um erro ao Resetar Password do Usuario.");
                 }
-                
+
             }
             private string GenerateJwtToken(Usuario user)
             {
@@ -132,7 +131,10 @@ namespace CadastroAPI
                 {
                     Subject = new ClaimsIdentity(new[]
                     {
-                    new Claim(ClaimTypes.Name, user.CPF)
+                        new Claim(ClaimTypes.Name, user.CPF),
+                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                        new Claim(JwtRegisteredClaimNames.Aud, _configuration["JwtSettings:Audience"]),
+                        new Claim(JwtRegisteredClaimNames.Iss, _configuration["JwtSettings:Issuer"])
                 }),
                     Expires = DateTime.UtcNow.AddHours(1),
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)

@@ -120,7 +120,6 @@ services.AddControllers()
 services.AddControllersWithViews(options =>
 {
     options.ModelBinderProviders.Insert(0, new NotaFiscalDTOBinderProvider());
-    options.ModelBinderProviders.Insert(0, new NotaFiscalDTOBinderProvider());
 
 });
 

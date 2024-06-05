@@ -93,6 +93,7 @@ namespace CadastroAPI.Models
         [JsonIgnore]
         public string UsuarioId { get; set; }
         [Key]
+        [Required]
         public string NotaCupom { get; set; } // Chave primária junto com UsuarioId
 
         [Required]

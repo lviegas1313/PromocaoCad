@@ -22,33 +22,6 @@ namespace CadastroAPI.Controllers
             _repositoryNumerosSorte = numeroSorte;
         }
 
-        //[HttpPost("add")]
-        //public async Task<IActionResult> AddNotaFiscal([FromBody] NotaFiscalDTO notaFiscalDto)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ModelState);
-        //    }
-        //    if (User.Identity?.IsAuthenticated ?? false)
-        //    {
-        //        notaFiscalDto.UsuarioId = User.FindFirst(ClaimTypes.Name)?.Value;
-        //    }
-
-        //    try
-        //    {
-        //        var notaFiscal = NotaFiscal.FromDto(notaFiscalDto);
-        //        await _repository.AddNotaFiscalAsync(notaFiscal);
-        //        var nun = notaFiscal.CalcularNumerosSorte();
-        //        await _repositoryNumerosSorte.GerarNumerosSorteAsync(notaFiscal.UsuarioId, notaFiscal.NotaCupom, nun);
-        //        var numeros = _repositoryNumerosSorte.GetNumerosPorNotaFiscal(notaFiscal.NotaCupom).Result;
-        //        return Ok(notaFiscal.ToDto(numeros));
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest("Ocorreu um erro ao adicionar a nota fiscal.");
-        //    }
-        //}
-
         [HttpPost("Adicionar-nota_fiscal_cupom")]
         public async Task<IActionResult> AddNotaFiscalWithImage([FromForm] NotaFiscalDTO notaFiscalDto)
         {
@@ -61,10 +34,8 @@ namespace CadastroAPI.Controllers
                 if (User.Identity?.IsAuthenticated ?? false)
                 {
                     notaFiscalDto.UsuarioId = User.FindFirst(ClaimTypes.Name)?.Value;
-                }
-                
-                //var aux = JsonSerializer.Deserialize<List<ProdutoDTO>>(notaFiscalDto.Produtosstring);
-               // notaFiscalDto.Produtos = aux;
+                }                
+
                 var notaFiscal = NotaFiscal.FromDto(notaFiscalDto);
 
                 if (notaFiscalDto.Imagem != null)
@@ -81,7 +52,7 @@ namespace CadastroAPI.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest("Ocorreu um erro ao adicionar a nota fiscal./n "  + ex);
+                return BadRequest("Ocorreu um erro ao adicionar a nota fiscal." );
             }
         } 
 
@@ -103,7 +74,7 @@ namespace CadastroAPI.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest("Nota fiscal não encontrada /n" +ex);
+                return BadRequest("Nota fiscal não encontrada" );
             }
         }
 
@@ -125,7 +96,7 @@ namespace CadastroAPI.Controllers
             catch (Exception ex)
             {
 
-                return BadRequest("Notas fiscais não encontradas /n" + ex);
+                return BadRequest("Notas fiscais não encontradas" );
             }
 
         }
